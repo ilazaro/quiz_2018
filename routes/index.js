@@ -13,6 +13,33 @@ router.all('*',sessionController.deleteExpiredUserSession);
 
 //-----------------------------------------------------------
 
+// History: Restoration routes.
+
+// Redirection to the saved restoration route.
+function redirectBack(req, res, next) {
+    const url = req.session.backURL || "/";
+    delete req.session.backURL;
+    res.redirect(url);
+}
+
+router.get('/goback', redirectBack);
+
+// Save the route that will be the current restoration route.
+function saveBack(req, res, next) {
+    req.session.backURL = req.url;
+    next();
+}
+
+// Restoration routes are GET routes that do not end in:
+//   /new, /edit, /play, /check, /session, or /:id.
+router.get('/',                        saveBack);
+router.get('/author',                  saveBack);
+router.get('/users',                   saveBack);
+router.get('/users/:id(\\d+)/quizzes', saveBack);
+router.get('/quizzes',                 saveBack);
+
+//-----------------------------------------------------------
+
 /* GET home page. */
 router.get('/', (req, res, next) => {
   res.render('index');
